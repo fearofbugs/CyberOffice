@@ -40,9 +40,6 @@ services:
     environment:
       SITE_ADDRESS: ${SITE_ADDRESS:-:80}
       BACKEND_SITE_ADDRESS: ${BACKEND_SITE_ADDRESS:-office.localhost}
-    ports:
-      - '${HTTP_PORT:-80}:80'
-      - '${HTTPS_PORT:-443}:443'
     volumes:
       - caddy_data:/data
       - caddy_config:/config
@@ -52,3 +49,8 @@ volumes:
   mongodb_data:
   caddy_data:
   caddy_config:
+
+networks:
+  default:
+    name: ${DOCKER_NETWORK:-serenity_default}
+    external: true
