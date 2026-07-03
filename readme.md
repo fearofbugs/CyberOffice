@@ -92,6 +92,23 @@ cd SkyOffice/client or 'my-folder-name/client'
 yarn && yarn dev
 ```
 
+## Self-host with Docker Compose
+
+The compose stack runs MongoDB, the Colyseus server, and the built React client served by Caddy:
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+By default the client is available at `http://localhost:8080`, the server listens on `ws://localhost:2567`, and MongoDB stores Colyseus room listings in the `mongodb_data` Docker volume.
+
+For deployment, set `VITE_SERVER_URL` before building the client image so browsers connect to your public WebSocket endpoint:
+
+```bash
+VITE_SERVER_URL=wss://your-domain.example docker compose up --build
+```
+
 ## Credits 🎉
 
 Big thanks to this great repo - [ourcade/phaser3-typescript-parcel-template](https://github.com/ourcade/phaser3-typescript-parcel-template)

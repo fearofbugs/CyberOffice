@@ -1,0 +1,86 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: skyoffice-deploy
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16
+
+      - name: Install Yarn
+        run: npm install -g yarn@1.22.22
+
+      - name: Install server dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install shared type dependencies
+        working-directory: types
+        run: yarn install --frozen-lockfile
+
+      - name: Install client dependencies
+        working-directory: client
+        run: yarn install --frozen-lockfile
+
+      - name: Type-check server
+        run: yarn tsc --project server/tsconfig.server.json --noEmit
+
+      - name: Build client
+        working-directory: client
+        run: yarn build
+
+      - name: Validate Docker Compose
+        run: docker compose config --quiet
+
+  deploy:
+    name: Deploy To GCP VM
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.GCP_VM_SSH_KEY }}
+          SSH_HOST: ${{ secrets.GCP_VM_HOST }}
+          SSH_PORT: ${{ secrets.GCP_VM_PORT || '22' }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/gcp_vm_key
+          chmod 600 ~/.ssh/gcp_vm_key
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Deploy
+        env:
+          SSH_HOST: ${{ secrets.GCP_VM_HOST }}
+          SSH_USER: ${{ secrets.GCP_VM_USER }}
+          SSH_PORT: ${{ secrets.GCP_VM_PORT || '22' }}
+          APP_DIR: ${{ secrets.GCP_VM_APP_DIR || '/opt/skyoffice' }}
+        run: |
+          ssh -i ~/.ssh/gcp_vm_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "APP_DIR='$APP_DIR' bash -s" <<'EOF'
+          set -euo pipefail
+          cd "$APP_DIR"
+          git fetch --prune origin
+          git checkout main
+          git reset --hard origin/main
+          docker compose up --build -d --remove-orphans
+          docker image prune -f
+          docker compose ps
+          EOF
