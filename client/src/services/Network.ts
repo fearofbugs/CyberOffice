@@ -31,9 +31,10 @@ export default class Network {
 
   constructor() {
     const protocol = window.location.protocol.replace('http', 'ws')
+    const defaultEndpoint = `${protocol}//${window.location.host}`
     const endpoint =
       process.env.NODE_ENV === 'production'
-        ? import.meta.env.VITE_SERVER_URL
+        ? import.meta.env.VITE_SERVER_URL || defaultEndpoint
         : `${protocol}//${window.location.hostname}:2567`
     this.client = new Client(endpoint)
     this.joinLobbyRoom().then(() => {
