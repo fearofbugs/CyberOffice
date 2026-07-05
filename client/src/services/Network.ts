@@ -20,6 +20,15 @@ import {
   pushPlayerLeftMessage,
 } from '../stores/ChatStore'
 import { setWhiteboardUrls } from '../stores/WhiteboardStore'
+import {
+  addMeetingUser,
+  clearMeetingScreenStream,
+  removeMeetingUser,
+  setActivePresenterId,
+  setMeetingJoined,
+  setMeetingUsers,
+} from '../stores/MeetingStore'
+import { setMusicState } from '../stores/MusicStore'
 
 export default class Network {
   private client: Client
@@ -161,6 +170,47 @@ export default class Network {
       store.dispatch(pushChatMessage(item))
     }
 
+    const meeting = this.room.state.meeting
+    if (meeting?.connectedUser) {
+      store.dispatch(setMeetingUsers([...meeting.connectedUser.values()]))
+      store.dispatch(setActivePresenterId(meeting.activePresenterId))
+      meeting.connectedUser.onAdd = (item) => {
+        store.dispatch(addMeetingUser(item))
+        store.getState().meeting.manager?.onUserJoined(item)
+      }
+      meeting.connectedUser.onRemove = (item) => {
+        store.dispatch(removeMeetingUser(item))
+        store.getState().meeting.manager?.onUserLeft(item)
+      }
+      meeting.onChange = (changes) => {
+        changes.forEach((change) => {
+          if (change.field === 'activePresenterId') {
+            store.dispatch(setActivePresenterId(change.value))
+          }
+        })
+      }
+    } else {
+      store.dispatch(setMeetingUsers([]))
+      store.dispatch(setActivePresenterId(''))
+    }
+
+    const updateMusicStore = () => {
+      const music = this.room?.state.music
+      store.dispatch(
+        setMusicState({
+          videoId: music?.videoId || '',
+          isPlaying: music?.isPlaying || false,
+          position: music?.position || 0,
+          updatedAt: music?.updatedAt || 0,
+          updatedBy: music?.updatedBy || '',
+        })
+      )
+    }
+    updateMusicStore()
+    if (this.room.state.music) {
+      this.room.state.music.onChange = updateMusicStore
+    }
+
     // when the server sends room data
     this.room.onMessage(Message.SEND_ROOM_DATA, (content) => {
       store.dispatch(setJoinedRoomData(content))
@@ -180,6 +230,14 @@ export default class Network {
     this.room.onMessage(Message.STOP_SCREEN_SHARE, (clientId: string) => {
       const computerState = store.getState().computer
       computerState.shareScreenManager?.onUserLeft(clientId)
+    })
+
+    this.room.onMessage(Message.STOP_MEETING_SCREEN_SHARE, ({ presenterId }) => {
+      const meetingState = store.getState().meeting
+      if (presenterId === this.mySessionId) {
+        meetingState.manager?.stopScreenShare(false)
+      }
+      store.dispatch(clearMeetingScreenStream(presenterId))
     })
   }
 
@@ -278,6 +336,29 @@ export default class Network {
 
   onStopScreenShare(id: string) {
     this.room?.send(Message.STOP_SCREEN_SHARE, { computerId: id })
+  }
+
+  joinMeeting() {
+    this.webRTC?.disconnectAll()
+    this.room?.send(Message.JOIN_MEETING)
+    store.dispatch(setMeetingJoined(true))
+  }
+
+  leaveMeeting() {
+    this.room?.send(Message.LEAVE_MEETING)
+    store.dispatch(setMeetingJoined(false))
+  }
+
+  startMeetingScreenShare() {
+    this.room?.send(Message.START_MEETING_SCREEN_SHARE)
+  }
+
+  stopMeetingScreenShare() {
+    this.room?.send(Message.STOP_MEETING_SCREEN_SHARE)
+  }
+
+  updateMusicState(content: { videoId?: string; isPlaying?: boolean; position?: number }) {
+    this.room?.send(Message.UPDATE_MUSIC_STATE, content)
   }
 
   addChatMessage(content: string) {

@@ -109,6 +109,19 @@ For deployment, set `VITE_SERVER_URL` before building the client image so browse
 VITE_SERVER_URL=wss://your-domain.example docker compose up --build
 ```
 
+## Deploy on Google Cloud VM
+
+For a Google Compute Engine VM deployment, use the Docker Compose stack and point DNS records at the VM external IP.
+
+```bash
+git clone <your-repo-url> SkyOffice
+cd SkyOffice
+cp deploy/gcloud.env.example .env
+docker compose up -d --build
+```
+
+This repository is configured for `meet.guix.tech` as the client domain and `office.guix.tech` as the backend domain. See [deploy/gcloud-vm.md](deploy/gcloud-vm.md) for the full VM setup and [deploy/redeploy-gcloud.md](deploy/redeploy-gcloud.md) for later redeploys.
+
 ## Credits 🎉
 
 Big thanks to this great repo - [ourcade/phaser3-typescript-parcel-template](https://github.com/ourcade/phaser3-typescript-parcel-template)

@@ -8,6 +8,7 @@
 
 	route {
 		reverse_proxy /matchmake* server:2567
+		reverse_proxy /colyseus* server:2567
 		reverse_proxy @websocket server:2567
 		try_files {path} /index.html
 		file_server

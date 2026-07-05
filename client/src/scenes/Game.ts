@@ -253,6 +253,7 @@ export default class Game extends Phaser.Scene {
   }
 
   private handlePlayersOverlap(myPlayer, otherPlayer) {
+    if (store.getState().meeting.joined) return
     otherPlayer.makeCall(myPlayer, this.network?.webRTC)
   }
 

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
 import { useAppSelector } from './hooks'
@@ -7,6 +7,8 @@ import RoomSelectionDialog from './components/RoomSelectionDialog'
 import LoginDialog from './components/LoginDialog'
 import ComputerDialog from './components/ComputerDialog'
 import WhiteboardDialog from './components/WhiteboardDialog'
+import MeetingDialog from './components/MeetingDialog'
+import YouTubeMusicPlayer from './components/YouTubeMusicPlayer'
 import VideoConnectionDialog from './components/VideoConnectionDialog'
 import Chat from './components/Chat'
 import HelperButtonGroup from './components/HelperButtonGroup'
@@ -22,8 +24,16 @@ function App() {
   const loggedIn = useAppSelector((state) => state.user.loggedIn)
   const computerDialogOpen = useAppSelector((state) => state.computer.computerDialogOpen)
   const whiteboardDialogOpen = useAppSelector((state) => state.whiteboard.whiteboardDialogOpen)
+  const meetingDialogOpen = useAppSelector((state) => state.meeting.meetingDialogOpen)
+  const meetingJoined = useAppSelector((state) => state.meeting.joined)
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
   const roomJoined = useAppSelector((state) => state.room.roomJoined)
+
+  useEffect(() => {
+    const display = meetingJoined ? 'none' : ''
+    document.querySelector<HTMLElement>('.video-grid')?.style.setProperty('display', display)
+    document.querySelector<HTMLElement>('.button-grid')?.style.setProperty('display', display)
+  }, [meetingJoined])
 
   let ui: JSX.Element
   if (loggedIn) {
@@ -33,6 +43,8 @@ function App() {
     } else if (whiteboardDialogOpen) {
       /* Render WhiteboardDialog if user is using a whiteboard. */
       ui = <WhiteboardDialog />
+    } else if (meetingDialogOpen) {
+      ui = <MeetingDialog />
     } else {
       ui = (
         /* Render Chat or VideoConnectionDialog if no dialogs are opened. */
@@ -55,8 +67,9 @@ function App() {
   return (
     <Backdrop>
       {ui}
+      {loggedIn && roomJoined && <YouTubeMusicPlayer />}
       {/* Render HelperButtonGroup if no dialogs are opened. */}
-      {!computerDialogOpen && !whiteboardDialogOpen && <HelperButtonGroup />}
+      {!computerDialogOpen && !whiteboardDialogOpen && !meetingDialogOpen && <HelperButtonGroup />}
     </Backdrop>
   )
 }

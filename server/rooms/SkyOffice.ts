@@ -17,6 +17,12 @@ import {
 } from './commands/WhiteboardUpdateArrayCommand'
 import ChatMessageUpdateCommand from './commands/ChatMessageUpdateCommand'
 
+type MusicStateMessage = {
+  videoId?: string
+  isPlaying?: boolean
+  position?: number
+}
+
 export class SkyOffice extends Room<OfficeState> {
   private dispatcher = new Dispatcher(this)
   private name: string
@@ -75,6 +81,57 @@ export class SkyOffice extends Room<OfficeState> {
           }
         })
       })
+    })
+
+    this.onMessage(Message.JOIN_MEETING, (client) => {
+      if (!this.state.meeting.connectedUser.has(client.sessionId)) {
+        this.state.meeting.connectedUser.add(client.sessionId)
+      }
+    })
+
+    this.onMessage(Message.LEAVE_MEETING, (client) => {
+      this.removeClientFromMeeting(client.sessionId)
+    })
+
+    this.onMessage(Message.START_MEETING_SCREEN_SHARE, (client) => {
+      const previousPresenterId = this.state.meeting.activePresenterId
+      if (previousPresenterId && previousPresenterId !== client.sessionId) {
+        this.clients.forEach((cli) => {
+          if (cli.sessionId === previousPresenterId) {
+            cli.send(Message.STOP_MEETING_SCREEN_SHARE, { presenterId: previousPresenterId })
+          }
+        })
+      }
+      if (!this.state.meeting.connectedUser.has(client.sessionId)) {
+        this.state.meeting.connectedUser.add(client.sessionId)
+      }
+      this.state.meeting.activePresenterId = client.sessionId
+    })
+
+    this.onMessage(Message.STOP_MEETING_SCREEN_SHARE, (client) => {
+      if (this.state.meeting.activePresenterId === client.sessionId) {
+        this.state.meeting.activePresenterId = ''
+        this.broadcast(Message.STOP_MEETING_SCREEN_SHARE, { presenterId: client.sessionId })
+      }
+    })
+
+    this.onMessage(Message.UPDATE_MUSIC_STATE, (client, message: MusicStateMessage) => {
+      const videoId = typeof message.videoId === 'string' ? message.videoId.trim() : undefined
+      const isPlaying = typeof message.isPlaying === 'boolean' ? message.isPlaying : undefined
+      const position =
+        typeof message.position === 'number' && Number.isFinite(message.position)
+          ? Math.max(0, message.position)
+          : undefined
+
+      if (videoId !== undefined) this.state.music.videoId = videoId
+      if (isPlaying !== undefined) this.state.music.isPlaying = isPlaying
+      if (position !== undefined) this.state.music.position = position
+      if (videoId === '') {
+        this.state.music.isPlaying = false
+        this.state.music.position = 0
+      }
+      this.state.music.updatedAt = Date.now()
+      this.state.music.updatedBy = client.sessionId
     })
 
     // when a player connect to a whiteboard, add to the whiteboard connectedUser array
@@ -188,6 +245,7 @@ export class SkyOffice extends Room<OfficeState> {
         whiteboard.connectedUser.delete(client.sessionId)
       }
     })
+    this.removeClientFromMeeting(client.sessionId)
   }
 
   onDispose() {
@@ -197,5 +255,15 @@ export class SkyOffice extends Room<OfficeState> {
 
     console.log('room', this.roomId, 'disposing...')
     this.dispatcher.stop()
+  }
+
+  private removeClientFromMeeting(clientId: string) {
+    if (this.state.meeting.connectedUser.has(clientId)) {
+      this.state.meeting.connectedUser.delete(clientId)
+    }
+    if (this.state.meeting.activePresenterId === clientId) {
+      this.state.meeting.activePresenterId = ''
+      this.broadcast(Message.STOP_MEETING_SCREEN_SHARE, { presenterId: clientId })
+    }
   }
 }

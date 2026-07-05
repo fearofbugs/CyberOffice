@@ -130,6 +130,20 @@ export default class WebRTC {
     }
   }
 
+  disconnectAll() {
+    this.peers.forEach(({ call, video }) => {
+      call.close()
+      video.remove()
+    })
+    this.onCalledPeers.forEach(({ call, video }) => {
+      call.close()
+      video.remove()
+    })
+    this.peers.clear()
+    this.onCalledPeers.clear()
+    this.myVideo.remove()
+  }
+
   // method to set up mute/unmute and video on/off buttons
   setUpButtons() {
     const audioButton = document.createElement('button')

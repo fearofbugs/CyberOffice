@@ -14,7 +14,31 @@ const port = Number(process.env.PORT || 2567)
 const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI
 const app = express()
 
-app.use(cors())
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin) {
+        callback(null, true)
+        return
+      }
+
+      try {
+        const hostname = new URL(origin).hostname
+        const isAllowedLocalOrigin =
+          hostname === 'localhost' ||
+          hostname === '127.0.0.1' ||
+          hostname.startsWith('192.168.') ||
+          hostname.startsWith('10.') ||
+          /^172\.(1[6-9]|2\d|3[0-1])\./.test(hostname)
+
+        callback(null, isAllowedLocalOrigin)
+      } catch (error) {
+        callback(null, false)
+      }
+    },
+    credentials: true,
+  })
+)
 app.use(express.json())
 // app.use(express.static('dist'))
 

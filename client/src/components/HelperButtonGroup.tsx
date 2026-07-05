@@ -15,9 +15,13 @@ import GitHubIcon from '@mui/icons-material/GitHub'
 import TwitterIcon from '@mui/icons-material/Twitter'
 import VideogameAssetIcon from '@mui/icons-material/VideogameAsset'
 import VideogameAssetOffIcon from '@mui/icons-material/VideogameAssetOff'
+import VideoCallIcon from '@mui/icons-material/VideoCall'
+import MusicNoteIcon from '@mui/icons-material/MusicNote'
 
 import { BackgroundMode } from '../../../types/BackgroundMode'
 import { setShowJoystick, toggleBackgroundMode } from '../stores/UserStore'
+import { openMeetingDialog } from '../stores/MeetingStore'
+import { setMusicPanelOpen } from '../stores/MusicStore'
 import { useAppSelector, useAppDispatch } from '../hooks'
 import { getAvatarString, getColorByString } from '../util'
 
@@ -114,6 +118,7 @@ export default function HelperButtonGroup() {
   const roomId = useAppSelector((state) => state.room.roomId)
   const roomName = useAppSelector((state) => state.room.roomName)
   const roomDescription = useAppSelector((state) => state.room.roomDescription)
+  const musicPanelOpen = useAppSelector((state) => state.music.panelOpen)
   const dispatch = useAppDispatch()
 
   return (
@@ -182,6 +187,19 @@ export default function HelperButtonGroup() {
       <ButtonGroup>
         {roomJoined && (
           <>
+            <Tooltip title="Room Meeting">
+              <StyledFab size="small" onClick={() => dispatch(openMeetingDialog())}>
+                <VideoCallIcon />
+              </StyledFab>
+            </Tooltip>
+            <Tooltip title="Office Music">
+              <StyledFab
+                size="small"
+                onClick={() => dispatch(setMusicPanelOpen(!musicPanelOpen))}
+              >
+                <MusicNoteIcon />
+              </StyledFab>
+            </Tooltip>
             <Tooltip title="Room Info">
               <StyledFab
                 size="small"
