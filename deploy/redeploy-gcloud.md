@@ -14,7 +14,7 @@ SSH into the VM, then run:
 ```bash
 cd SkyOffice
 git pull
-docker compose up -d --build
+docker compose up -d --build --remove-orphans
 ```
 
 Check that all services are running:
@@ -90,6 +90,30 @@ Rebuild from scratch without deleting MongoDB data:
 ```bash
 docker compose build --no-cache
 docker compose up -d
+```
+
+Fast cached rebuild without restarting containers:
+
+```bash
+docker compose build server client
+```
+
+Apply the newly built images:
+
+```bash
+docker compose up -d --remove-orphans
+```
+
+Remove old build cache if the VM disk gets full:
+
+```bash
+docker builder prune
+```
+
+Remove old stopped containers and unused images:
+
+```bash
+docker system prune
 ```
 
 Delete all app containers and volumes, including MongoDB data and Caddy certificates:

@@ -16,7 +16,7 @@ import Bootstrap from '../scenes/Bootstrap'
 const CreateRoomFormWrapper = styled.form`
   display: flex;
   flex-direction: column;
-  width: 320px;
+  width: min(320px, calc(100vw - 72px));
   gap: 20px;
 `
 

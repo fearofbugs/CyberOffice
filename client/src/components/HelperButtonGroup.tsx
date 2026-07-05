@@ -29,14 +29,30 @@ const Backdrop = styled.div`
   position: fixed;
   display: flex;
   gap: 10px;
-  bottom: 16px;
-  right: 16px;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  right: max(16px, env(safe-area-inset-right));
   align-items: flex-end;
+  max-width: calc(100vw - 32px);
 
   .wrapper-group {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    min-width: 0;
+  }
+
+  @media (max-width: 700px), (pointer: coarse) {
+    right: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: 8px;
+    justify-content: flex-end;
+    pointer-events: none;
+
+    .wrapper-group,
+    button,
+    a {
+      pointer-events: auto;
+    }
   }
 `
 
@@ -61,11 +77,25 @@ const Wrapper = styled.div`
   .tip {
     margin-left: 12px;
   }
+
+  @media (max-width: 700px), (pointer: coarse) {
+    max-width: calc(100vw - 16px);
+    max-height: min(360px, 58dvh);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 14px 38px 14px 14px;
+  }
 `
 
 const ButtonGroup = styled.div`
   display: flex;
   gap: 10px;
+
+  @media (max-width: 700px), (pointer: coarse) {
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
 `
 
 const Title = styled.h3`
@@ -89,6 +119,15 @@ const RoomName = styled.div`
     font-size: 24px;
     color: #eee;
   }
+
+  @media (max-width: 700px), (pointer: coarse) {
+    margin: 8px 0;
+    max-width: 100%;
+
+    h3 {
+      font-size: 20px;
+    }
+  }
 `
 
 const RoomDescription = styled.div`
@@ -101,6 +140,12 @@ const RoomDescription = styled.div`
   color: #c2c2c2;
   display: flex;
   justify-content: center;
+
+  @media (max-width: 700px), (pointer: coarse) {
+    margin: 0;
+    max-width: 100%;
+    justify-content: flex-start;
+  }
 `
 
 const StyledFab = styled(Fab)<{ target?: string }>`

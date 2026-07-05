@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 FROM node:16-bullseye AS build
 
 WORKDIR /app
@@ -11,12 +13,14 @@ ENV VITE_SERVER_URL=$VITE_SERVER_URL
 COPY client/package.json client/yarn.lock ./client/
 COPY types/package.json types/yarn.lock ./types/
 
-RUN cd types && yarn install --frozen-lockfile
+RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
+  cd types && yarn install --frozen-lockfile \
+  && cd ../client && yarn install --frozen-lockfile
 
 COPY types ./types
 COPY client ./client
 
-RUN cd client && yarn install --frozen-lockfile && yarn build
+RUN cd client && yarn build
 
 FROM caddy:2.8-alpine
 

@@ -10,10 +10,18 @@ import { JoystickMovement } from './Joystick'
 
 const Backdrop = styled.div`
   position: fixed;
-  bottom: 100px;
-  right: 32px;
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  right: max(24px, env(safe-area-inset-right));
   max-height: 50%;
   max-width: 100%;
+  z-index: 2;
+  touch-action: none;
+  user-select: none;
+
+  @media (max-width: 700px), (pointer: coarse) {
+    bottom: calc(84px + env(safe-area-inset-bottom));
+    right: max(18px, env(safe-area-inset-right));
+  }
 `
 
 const Wrapper = styled.div`

@@ -19,20 +19,29 @@ import Bootstrap from '../scenes/Bootstrap'
 
 const Backdrop = styled.div`
   position: absolute;
-  top: 50%;
+  top: max(24px, env(safe-area-inset-top));
   left: 50%;
-  transform: translate(-50%, -50%);
+  bottom: max(24px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
-  gap: 60px;
+  gap: 24px;
   align-items: center;
+  justify-content: center;
+  width: min(100% - 24px, 760px);
+  pointer-events: none;
 `
 
 const Wrapper = styled.div`
+  width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
   background: #222639;
   border-radius: 16px;
-  padding: 36px 60px;
+  padding: clamp(20px, 5vw, 36px) clamp(18px, 8vw, 60px);
   box-shadow: 0px 0px 5px #0000006f;
+  pointer-events: auto;
 `
 
 const CustomRoomWrapper = styled.div`
@@ -68,7 +77,7 @@ const TitleWrapper = styled.div`
 `
 
 const Title = styled.h1`
-  font-size: 24px;
+  font-size: clamp(20px, 5vw, 24px);
   color: #eee;
   text-align: center;
 `
@@ -83,7 +92,7 @@ const Content = styled.div`
 
   img {
     border-radius: 8px;
-    height: 120px;
+    height: clamp(84px, 24vw, 120px);
   }
 `
 
@@ -91,6 +100,8 @@ const ProgressBarWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: min(100%, 360px);
+  pointer-events: auto;
 
   h3 {
     color: #33ac96;
@@ -98,7 +109,7 @@ const ProgressBarWrapper = styled.div`
 `
 
 const ProgressBar = styled(LinearProgress)`
-  width: 360px;
+  width: 100%;
 `
 
 export default function RoomSelectionDialog() {

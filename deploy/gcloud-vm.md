@@ -74,7 +74,7 @@ Deploy new code after pulling changes:
 
 ```bash
 git pull
-docker compose up -d --build
+docker compose up -d --build --remove-orphans
 ```
 
 For the shorter redeploy runbook, see [redeploy-gcloud.md](redeploy-gcloud.md).
@@ -99,6 +99,7 @@ docker compose down -v
 
 ## Notes
 
-- `VITE_SERVER_URL` is baked into the frontend image during `docker compose build`. If you change it, rebuild the client with `docker compose up -d --build`.
+- `VITE_SERVER_URL` is baked into the frontend image during `docker compose build`. If you change it, rebuild the client with `docker compose up -d --build --remove-orphans`.
+- Docker builds use BuildKit cache mounts for Yarn dependencies. Normal redeploys should be much faster after the first successful build.
 - Do not commit `.env`; it is intentionally ignored by Git.
 - If Caddy fails to obtain certificates, confirm DNS points to the VM and that cloud firewall rules allow inbound `80` and `443`.

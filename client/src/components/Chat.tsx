@@ -20,12 +20,20 @@ import { MessageType, setFocused, setShowChat } from '../stores/ChatStore'
 
 const Backdrop = styled.div`
   position: fixed;
-  bottom: 60px;
-  left: 0;
-  height: 400px;
-  width: 500px;
+  bottom: calc(60px + env(safe-area-inset-bottom));
+  left: env(safe-area-inset-left);
+  height: min(400px, 50dvh);
+  width: min(500px, 100vw);
   max-height: 50%;
   max-width: 100%;
+
+  @media (max-width: 700px), (pointer: coarse) {
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    left: 0;
+    height: min(360px, 56dvh);
+    width: 100vw;
+    max-height: none;
+  }
 `
 
 const Wrapper = styled.div`
@@ -34,6 +42,10 @@ const Wrapper = styled.div`
   padding: 16px;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 700px), (pointer: coarse) {
+    padding: 8px;
+  }
 `
 
 const FabWrapper = styled.div`
@@ -58,12 +70,21 @@ const ChatHeader = styled.div`
     top: 0;
     right: 0;
   }
+
+  @media (max-width: 700px), (pointer: coarse) {
+    height: 40px;
+
+    h3 {
+      margin: 9px;
+    }
+  }
 `
 
 const ChatBox = styled(Box)`
   height: 100%;
   width: 100%;
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
   background: #2c2c2c;
   border: 1px solid #00000029;
 `
@@ -110,6 +131,11 @@ const InputTextField = styled(InputBase)`
   border-radius: 0px 0px 10px 10px;
   input {
     padding: 5px;
+
+    @media (max-width: 700px), (pointer: coarse) {
+      padding: 10px 8px;
+      font-size: 16px;
+    }
   }
 `
 
@@ -117,6 +143,12 @@ const EmojiPickerWrapper = styled.div`
   position: absolute;
   bottom: 54px;
   right: 16px;
+
+  @media (max-width: 700px), (pointer: coarse) {
+    right: 8px;
+    max-width: calc(100vw - 16px);
+    overflow: auto;
+  }
 `
 
 const dateFormatter = new Intl.DateTimeFormat('en', {

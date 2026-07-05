@@ -25,13 +25,28 @@ import Game from '../scenes/Game'
 
 const Wrapper = styled.form`
   position: fixed;
-  top: 50%;
+  top: max(16px, env(safe-area-inset-top));
   left: 50%;
-  transform: translate(-50%, -50%);
+  bottom: max(16px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(100% - 24px, 640px);
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
   background: #222639;
   border-radius: 16px;
-  padding: 36px 60px;
+  padding: clamp(20px, 5vw, 36px) clamp(16px, 7vw, 60px);
   box-shadow: 0px 0px 5px #0000006f;
+
+  @media (max-width: 640px) {
+    top: max(8px, env(safe-area-inset-top));
+    bottom: max(8px, env(safe-area-inset-bottom));
+    width: calc(100% - 16px);
+    max-height: calc(100vh - 16px);
+    max-height: calc(100dvh - 16px);
+    padding-bottom: calc(18px + env(safe-area-inset-bottom));
+  }
 `
 
 const Title = styled.p`
@@ -42,7 +57,7 @@ const Title = styled.p`
 `
 
 const RoomName = styled.div`
-  max-width: 500px;
+  max-width: 100%;
   max-height: 120px;
   overflow-wrap: anywhere;
   overflow-y: auto;
@@ -58,7 +73,7 @@ const RoomName = styled.div`
 `
 
 const RoomDescription = styled.div`
-  max-width: 500px;
+  max-width: 100%;
   max-height: 150px;
   overflow-wrap: anywhere;
   overflow-y: auto;
@@ -78,6 +93,13 @@ const SubTitle = styled.h3`
 const Content = styled.div`
   display: flex;
   margin: 36px 0;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    margin: 24px 0;
+  }
 `
 
 const Left = styled.div`
@@ -107,16 +129,24 @@ const Left = styled.div`
     height: 136px;
     object-fit: contain;
   }
+
+  @media (max-width: 640px) {
+    margin-right: 0;
+  }
 `
 
 const Right = styled.div`
-  width: 300px;
+  width: min(300px, 100%);
 `
 
 const Bottom = styled.div`
+  position: sticky;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-top: 12px;
+  background: linear-gradient(180deg, rgba(34, 38, 57, 0), #222639 28%);
 `
 
 const Warning = styled.div`

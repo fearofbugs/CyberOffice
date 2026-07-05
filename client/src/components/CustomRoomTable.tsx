@@ -33,7 +33,8 @@ const MessageText = styled.p`
 const CustomRoomTableContainer = styled(TableContainer)<{
   component: React.ElementType
 }>`
-  max-height: 500px;
+  max-height: min(500px, 58dvh);
+  max-width: calc(100vw - 48px);
 
   table {
     min-width: 650px;

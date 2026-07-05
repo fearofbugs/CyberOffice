@@ -52,7 +52,7 @@ const angleToDirections = (angle: number): Direction => {
 const JoystickItem = (props: Props) => {
   return (
     <Joystick
-      size={75}
+      size={window.innerWidth <= 700 ? 96 : 75}
       baseColor="#4b4b4b70"
       stickColor="#42eacb80"
       stop={() => {

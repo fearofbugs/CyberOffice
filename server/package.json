@@ -1,0 +1,20 @@
+{
+  "name": "skyoffice-server-runtime",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "dependencies": {
+    "@colyseus/command": "^0.1.7",
+    "@colyseus/monitor": "^0.14.0",
+    "@colyseus/schema": "^1.0.28",
+    "bcrypt": "5.0.1",
+    "colyseus": "^0.14.0",
+    "cors": "2.8.5",
+    "express": "4.16.4",
+    "mongoose": "^5.11.3"
+  },
+  "resolutions": {
+    "bson": "1.1.6",
+    "mongodb": "3.7.3"
+  }
+}
