@@ -3,6 +3,7 @@
 node_modules
 client/node_modules
 server/node_modules
+types/node_modules
 server/lib
 client/dist
 npm-debug.log

@@ -8,11 +8,9 @@ RUN yarn config set registry https://registry.npmjs.org \
   && yarn config set network-timeout 300000
 
 COPY package.json yarn.lock ./
-COPY types/package.json types/yarn.lock ./types/
 
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
-  yarn install --frozen-lockfile \
-  && cd types && yarn install --frozen-lockfile
+  yarn install --frozen-lockfile
 
 COPY types ./types
 COPY server ./server
