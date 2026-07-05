@@ -62,6 +62,7 @@ BACKEND_SITE_ADDRESS=office.guix.tech
 HTTP_PORT=80
 HTTPS_PORT=443
 VITE_SERVER_URL=wss://office.guix.tech
+CLIENT_BUILD_COMMAND=build:fast
 ```
 
 ## VM Requirements
@@ -142,4 +143,10 @@ Then rebuild:
 
 ```bash
 docker compose up -d --build
+```
+
+If you want Docker to run the slower TypeScript check during deployment, set this in `.env`:
+
+```env
+CLIENT_BUILD_COMMAND=build
 ```

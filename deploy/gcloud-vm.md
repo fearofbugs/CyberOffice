@@ -101,5 +101,6 @@ docker compose down -v
 
 - `VITE_SERVER_URL` is baked into the frontend image during `docker compose build`. If you change it, rebuild the client with `docker compose up -d --build --remove-orphans`.
 - Docker builds use BuildKit cache mounts for Yarn dependencies. Normal redeploys should be much faster after the first successful build.
+- Client Docker builds default to `CLIENT_BUILD_COMMAND=build:fast`, which runs Vite bundling without the slower separate TypeScript check. Set `CLIENT_BUILD_COMMAND=build` in `.env` when you want Docker deployment to run `tsc` too.
 - Do not commit `.env`; it is intentionally ignored by Git.
 - If Caddy fails to obtain certificates, confirm DNS points to the VM and that cloud firewall rules allow inbound `80` and `443`.
