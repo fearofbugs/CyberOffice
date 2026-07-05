@@ -30,8 +30,7 @@ RUN yarn config set registry https://registry.npmjs.org \
 COPY server/package.json package.json
 COPY server/yarn.lock yarn.lock
 
-RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
-  yarn install --frozen-lockfile --production=true
+RUN yarn install --frozen-lockfile --production=true
 
 COPY --from=build /app/server/lib ./server/lib
 
