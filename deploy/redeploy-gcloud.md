@@ -26,7 +26,7 @@ docker compose ps
 Watch logs if something does not load:
 
 ```bash
-docker compose logs -f client server mongodb
+docker compose logs -f frontend caddy server mongodb
 ```
 
 Open:
@@ -96,7 +96,7 @@ docker compose up -d
 Fast cached rebuild without restarting containers:
 
 ```bash
-docker compose build server client
+docker compose build server frontend
 ```
 
 Apply the newly built images:
@@ -130,7 +130,7 @@ Use `docker compose down -v` only when you intentionally want to reset stored ro
 If HTTPS does not work, check DNS and firewall first:
 
 ```bash
-docker compose logs -f client
+docker compose logs -f caddy
 ```
 
 If the client loads but cannot connect to rooms, confirm the frontend was built with:

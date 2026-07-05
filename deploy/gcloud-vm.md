@@ -4,7 +4,8 @@ This deployment uses Docker Compose:
 
 - MongoDB stores Colyseus room listings in a Docker volume.
 - The Colyseus server listens inside the Docker network on port `2567`.
-- Caddy serves the built React client and automatically provisions HTTPS certificates.
+- A frontend build container writes the React app into a shared volume.
+- A separate Caddy container serves the frontend and automatically provisions HTTPS certificates.
 - The browser connects to the backend through the same HTTPS host by default.
 
 ## 1. Create the VM
@@ -53,7 +54,7 @@ Check status and logs:
 
 ```bash
 docker compose ps
-docker compose logs -f client server mongodb
+docker compose logs -f frontend caddy server mongodb
 ```
 
 Open:
@@ -100,6 +101,7 @@ docker compose down -v
 ## Notes
 
 - `VITE_SERVER_URL` is baked into the frontend image during `docker compose build`. If you change it, rebuild the client with `docker compose up -d --build --remove-orphans`.
+- `VITE_SERVER_URL` is baked into the frontend build container during `docker compose build`. If you change it, rebuild with `docker compose up -d --build --remove-orphans`.
 - Docker builds use BuildKit cache mounts for Yarn dependencies. Normal redeploys should be much faster after the first successful build.
 - Client Docker builds default to `CLIENT_BUILD_COMMAND=build:fast`, which runs Vite bundling without the slower separate TypeScript check. Set `CLIENT_BUILD_COMMAND=build` in `.env` when you want Docker deployment to run `tsc` too.
 - Do not commit `.env`; it is intentionally ignored by Git.

@@ -19,12 +19,14 @@ export class Player extends Schema implements IPlayer {
 }
 
 export class Computer extends Schema implements IComputer {
-  @type({ set: 'string' }) connectedUser = new SetSchema<string>()
+  @type({ set: 'string' })
+  connectedUser: SetSchema<string> = new SetSchema<string>()
 }
 
 export class Whiteboard extends Schema implements IWhiteboard {
   @type('string') roomId = getRoomId()
-  @type({ set: 'string' }) connectedUser = new SetSchema<string>()
+  @type({ set: 'string' })
+  connectedUser: SetSchema<string> = new SetSchema<string>()
 }
 
 export class ChatMessage extends Schema implements IChatMessage {
@@ -34,7 +36,8 @@ export class ChatMessage extends Schema implements IChatMessage {
 }
 
 export class Meeting extends Schema implements IMeeting {
-  @type({ set: 'string' }) connectedUser = new SetSchema<string>()
+  @type({ set: 'string' })
+  connectedUser: SetSchema<string> = new SetSchema<string>()
   @type('string') activePresenterId = ''
 }
 

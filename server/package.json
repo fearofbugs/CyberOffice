@@ -14,6 +14,7 @@
     "mongoose": "^5.11.3"
   },
   "resolutions": {
+    "@types/node": "17.0.40",
     "bson": "1.1.6",
     "mongodb": "3.7.3"
   }

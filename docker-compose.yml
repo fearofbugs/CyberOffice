@@ -27,17 +27,32 @@ services:
       MONGODB_URI: ${DOCKER_MONGODB_URI:-mongodb://mongodb:27017/skyoffice}
     restart: unless-stopped
 
-  client:
+  frontend:
     image: ${CLIENT_IMAGE:-skyoffice-client:local}
     build:
       context: .
       dockerfile: client/Dockerfile
+      target: build
       args:
         VITE_SERVER_URL: ${VITE_SERVER_URL:-}
         CLIENT_BUILD_COMMAND: ${CLIENT_BUILD_COMMAND:-build:fast}
-    container_name: skyoffice-client
+    container_name: skyoffice-frontend
     depends_on:
       - server
+    command: >
+      sh -c "rm -rf /srv/* && cp -a /app/client/dist/. /srv/"
+    volumes:
+      - client_dist:/srv
+    restart: "no"
+
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: skyoffice-caddy
+    depends_on:
+      frontend:
+        condition: service_completed_successfully
+      server:
+        condition: service_started
     environment:
       SITE_ADDRESS: ${SITE_ADDRESS:-:80}
       BACKEND_SITE_ADDRESS: ${BACKEND_SITE_ADDRESS:-office.localhost}
@@ -45,11 +60,14 @@ services:
       - '${HTTP_PORT:-80}:80'
       - '${HTTPS_PORT:-443}:443'
     volumes:
+      - client_dist:/srv
       - caddy_data:/data
       - caddy_config:/config
+      - ./client/Caddyfile:/etc/caddy/Caddyfile:ro
     restart: unless-stopped
 
 volumes:
   mongodb_data:
+  client_dist:
   caddy_data:
   caddy_config:
