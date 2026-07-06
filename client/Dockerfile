@@ -7,10 +7,6 @@ WORKDIR /app
 RUN yarn config set registry https://registry.npmjs.org \
   && yarn config set network-timeout 300000
 
-ARG VITE_SERVER_URL=ws://localhost:2567
-ARG CLIENT_BUILD_COMMAND=build:fast
-ENV VITE_SERVER_URL=$VITE_SERVER_URL
-
 COPY client/package.json client/yarn.lock ./client/
 COPY types/package.json types/yarn.lock ./types/
 
@@ -21,13 +17,19 @@ RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
 COPY types ./types
 COPY client ./client
 
-RUN --mount=type=cache,target=/app/client/node_modules/.vite \
-  cd client && yarn "$CLIENT_BUILD_COMMAND"
+ARG VITE_SERVER_URL=
+ENV VITE_SERVER_URL=$VITE_SERVER_URL
 
-FROM caddy:2.8-alpine
+RUN cd client && yarn build
 
-COPY client/Caddyfile /etc/caddy/Caddyfile
-COPY --from=build /app/client/dist /srv
+FROM node:16-bullseye-slim
+
+WORKDIR /app
+
+RUN yarn global add serve@14.2.4
+
+COPY --from=build /app/client/dist ./dist
 
 EXPOSE 80
-EXPOSE 443
+
+CMD ["serve", "-s", "dist", "-l", "80"]

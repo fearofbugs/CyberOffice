@@ -94,33 +94,26 @@ yarn && yarn dev
 
 ## Self-host with Docker Compose
 
-The compose stack runs MongoDB, the Colyseus server, a frontend build container, and a separate Caddy container:
+The compose stack runs MongoDB, the backend server, and a separate frontend image:
 
 ```bash
-cp .env.example .env
+cp deploy/cloudflare.env.example .env
 docker compose up --build
 ```
 
-By default the client is available at `http://localhost` over Caddy, the server listens on `ws://localhost:2567`, and MongoDB stores Colyseus room listings in the `mongodb_data` Docker volume.
+By default the client is available at `http://localhost:8080`, the backend is available at `http://localhost:2567`, and MongoDB stores Colyseus room listings in the `mongodb_data` Docker volume.
 
-For deployment, set `VITE_SERVER_URL` before building the frontend image so browsers connect to your public WebSocket endpoint:
+## Deploy With Cloudflare Tunnel
 
-```bash
-VITE_SERVER_URL=wss://your-domain.example docker compose up --build
-```
-
-## Deploy on Google Cloud VM
-
-For a Google Compute Engine VM deployment, use the Docker Compose stack and point DNS records at the VM external IP.
+For production, use Cloudflare Tunnel instead of pointing DNS directly at the VM:
 
 ```bash
-git clone <your-repo-url> SkyOffice
-cd SkyOffice
-cp deploy/gcloud.env.example .env
-docker compose up -d --build
+cp deploy/cloudflare.env.example .env
+# set CLOUDFLARE_TUNNEL_TOKEN in .env
+docker compose --profile cloudflare up -d --build --remove-orphans
 ```
 
-This repository is configured for `meet.guix.tech` as the client domain and `office.guix.tech` as the backend domain. See [deploy/gcloud-vm.md](deploy/gcloud-vm.md) for the full VM setup and [deploy/redeploy-gcloud.md](deploy/redeploy-gcloud.md) for later redeploys.
+In Cloudflare, create public hostnames for `meet.guix.tech -> http://frontend:80` and `office.guix.tech -> http://server:2567`. See [deploy/cloudflare-vm.md](deploy/cloudflare-vm.md) for the full runbook.
 
 ## Credits 🎉
 
